@@ -89,7 +89,7 @@ classdef MipSim
             end
         end
 
-        function [A, B] = hanging(o)
+        function [A, B] = linearizedInverted(o)
             % Ex' = Gx + Du
             E = [
                 o.Mb*o.r*o.l   o.Iw+(o.Mb+o.Mw)*o.r^2
@@ -109,6 +109,13 @@ classdef MipSim
 
             A = E\G;
             B = E\D;
+        end
+
+        function TF = linearizedTransferFunction(o)
+            [A,B] = o.linearizedInverted();
+            C = [1 0 0 0];
+            s = tf('s');
+            TF = C * inv(s*eye(4) - A) * B;
         end
 
         % xbar = [theta, phi, theta', phi']'
