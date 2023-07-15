@@ -42,19 +42,26 @@ classdef MipSim < handle
         end
 
         function xyRange(obj, xVal, bottom)
+        % XYRANGE   Sets xy range and bottom y value for animation
+        %   obj.XYRANGE([-1 10], -1) sets min x value in range to -1 and 
+        %   max x value in range to 10. Also sets bottom of window to -1.
             obj.axisVals = [xVal(1) xVal(2) bottom bottom+xVal(2)-xVal(1)];
         end
 
         % x = [theta, phi, theta', phi']'
         function xDot = f(o,x, voltage) 
+        % F  Function for differential equation x' = f(x) of the system
+        %   xDot = o.F(x,voltage) determines derivative of x from current state and voltage
+        % 
+        %   From Numerical Renaissance (derived from nonlinear MiP model),
+        %   [K2*Ct, K1; K3, K2*Ct] x'' = [K2*St*(theta')^2 + torque; K4*St - torque]
+
             Ct = cos(x(1));
             St = sin(x(1));
 
             voltage = min(max(voltage, -6),6);
-            
-            % torque = o.StallTorque*voltage - o.StallTorque/o.MaxVel * x(4);
+
             torque = o.KtR*voltage - o.KtR * o.Kv * x(4);
-            % torque = voltage;
             acc = [
                 o.K2*Ct  o.K1
                 o.K3     o.K2*Ct
@@ -70,6 +77,8 @@ classdef MipSim < handle
         end
 
         function newX = update(o, x, u, dt) 
+        % UPDATE Uses RK-4 to determine next state x from current state x and input u
+        %   dt seconds ahead from now.
             k1 = o.f(x, u);
             k2 = o.f(x + k1 * dt/2, u);
             k3 = o.f(x + k2 * dt/2, u);
@@ -78,6 +87,11 @@ classdef MipSim < handle
         end
 
         function x = run(o, x0, uFunc, dt, Tf)
+        % RUN Returns all following states from initial state x0 until final time
+        %   Tf using inputs calculated from uFunc(x)
+        %   
+        %   o.RUN([0.1;0;0;0], @(x) -K*x; 0.01, 10) Simulates system from x0 at t = 0
+        %   to t = 10 using the control law u=-Kx
             t = 0:dt:Tf;
             x = zeros(4,length(t));
             x(:,1) = x0;
@@ -92,6 +106,9 @@ classdef MipSim < handle
         end
 
         function [A, B] = linearizedInverted(o)
+        % LINEARIZEDINVERTED Returns A,B matrices for linearized system at the 
+        %   exact uprighted position.
+
             % Ex' = Gx + Du
             E = [
                 o.Mb*o.r*o.l   o.Iw+(o.Mb+o.Mw)*o.r^2
@@ -114,6 +131,9 @@ classdef MipSim < handle
         end
 
         function TF = linearizedTransferFunction(o)
+        % LINEARIZEDTRANSFERFUNCTION Returns transfer function for linearized 
+        %   system at the exact uprighted position.
+
             [A,B] = o.linearizedInverted();
             C = [1 0 0 0];
             s = tf('s');
@@ -158,6 +178,9 @@ classdef MipSim < handle
         end
 
         function frames = animateWithComputedU(o, x0, uFunc, dt, Tf)
+        % ANIMATEWITHCOMPUTEDU Animates simulation starting at x0 from 0 to Tf
+        %   and returns frames to be saved into animation using MipSim.saveAnimation()
+        
             t = 0:dt:Tf;
             x = o.run(x0, uFunc, dt, Tf);
 
@@ -186,6 +209,8 @@ classdef MipSim < handle
         end
 
         function saveAnimation(o, filename, frames)
+        % SAVEANIMATION Saves frames from animation into avi file.
+
             video = VideoWriter('Animation.avi');
             video.Quality = 95;
             video.FrameRate = 1/o.animationDt;
@@ -197,6 +222,7 @@ classdef MipSim < handle
         end
 
         function [wheel, rod, wheelPos] = updateObjs(this, theta, phi)
+        % UPDATEOBJS Plots pendulum animation with given theta and phi
             l = 5;
             y = -this.r*phi;
             z = l*cos(theta);
