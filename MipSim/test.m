@@ -23,4 +23,4 @@ sim.axisVals = [xVal(1) xVal(2) bottom bottom+xVal(2)-xVal(1)];
 
 % x = sim.run(x0, @(x) 0.1, 0.01, 10);
 
-sim.animateWithComputedTorque(x0, @(x) 6, 0.01)
+sim.animateWithComputedTorque(x0, @(x) -K*x, 0.01)
