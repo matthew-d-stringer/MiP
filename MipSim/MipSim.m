@@ -142,6 +142,8 @@ classdef MipSim < handle
 
         % xbar = [theta, phi, theta', phi']'
         function A = linearized(o,xbar, ubar)
+        % LINEARIZED To be completed
+
             Ct = cos(xbar(1));
             St = sin(xbar(1));
             w = (o.K1*o.K3 - o.K2^2*Ct^2)^(-1);
