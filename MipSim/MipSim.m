@@ -1,11 +1,16 @@
 classdef MipSim
     properties 
-        r = 6.5e-2/2; %m
-        l = 6.5e-2; %m
-        Iw = 0.00185; %kg m^2
-        Ib = 0.1; %fix
-        Mw = 0.032; %kg
-        Mb = 0.5; %kg
+        Iw = 3.815e-5; % kg*m^2
+        Mw = 0.033*2; % kg
+        Ib = 0.836*1/12*((16/100)^2 + (4/100)^2); % kg*m^2
+        Mb = 0.836; % kg
+        r   = 0.034; % m
+        l   = 0.08; % m
+        g   = 9.81; % m/s^2
+
+        % s   = 0.012*2; % kg*m
+        % k   = s/(130 * pi/180/60); % N*m*s
+
 
         StallTorque = 0.157; %Nm
         MaxVel = 104; %rad/s
@@ -39,6 +44,7 @@ classdef MipSim
             St = sin(x(1));
             
             torque = o.StallTorque*voltage - o.StallTorque/o.MaxVel * x(4);
+            % torque = voltage;
             acc = [
                 o.K1     o.K2*Ct
                 o.K2*Ct  o.K3
