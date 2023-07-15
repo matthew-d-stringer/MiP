@@ -141,42 +141,51 @@ classdef MipSim < handle
         end
 
         % xbar = [theta, phi, theta', phi']'
-        function A = linearized(o,xbar, ubar)
+        function [A, B] = linearized(o,xbar, ubar)
         % LINEARIZED To be completed
 
             Ct = cos(xbar(1));
             St = sin(xbar(1));
-            w = (o.K1*o.K3 - o.K2^2*Ct^2)^(-1);
+            w = (o.K2^2 * Ct^2 - o.K1*o.K3)^(-1);
 
             % DT = Dtheta
-            DTw = (2*o.K2^2 * St)*(o.K1*o.K3 - o.K2^2*Ct^2)^(-2);
+            DTw = (-2*o.K2^2 * St * Ct)*(o.K2^2 * Ct^2 - o.K1*o.K3)^(-2);
 
             F = [
-                o.K3       -o.K2*Ct
-                -o.K2*Ct   o.K1
+                o.K2*Ct -o.K1
+                -o.K3   o.K2*Ct
             ];
             DTF = [
-                0        o.K1*St
-                o.K2*St  0
+                -o.K2*St 0
+                0        -o.K2*St
             ];
             u = [
-                o.K2 * St * xbar(3)^2 + ubar
-                o.K4 * St - ubar
+                o.K2 * St * xbar(3)^2 - o.KtR * o.Kv * xbar(4) + o.KtR*ubar
+                o.K4 * St             + o.KtR * o.Kv * xbar(4) - o.KtR*ubar
             ];
             DTu = [
                 o.K2 * Ct * xbar(3)^2 
-                o.K4 * Ct              
+                o.K4 * Ct 
             ];
 
             DTf = DTw*F*u + w*DTF*u + w*F*DTu;
             DPf = [0;0];
             DdTf = w*F*[2*o.K2*St*xbar(3); 0];
-            DdPf = [0;0];
+            DdPf = w*F*[
+                -o.KtR * o.Kv
+                 o.KtR * o.Kv
+            ];
 
             A = [
                 zeros(2)  eye(2) 
                 [DTf DPf] [DdTf DdPf]
             ];
+
+            B = w*F*[
+                o.KtR
+                -o.KtR
+            ];
+            B = [0;0;B];
         end
 
         function frames = animateWithComputedU(o, x0, uFunc, dt, Tf)
