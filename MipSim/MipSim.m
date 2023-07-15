@@ -8,12 +8,8 @@ classdef MipSim < handle
         l   = 0.08; % m
         g   = 9.81; % m/s^2
 
-        % s   = 0.012*2; % kg*m
-        % k   = s/(130 * pi/180/60); % N*m*s
-
-
-        StallTorque = 0.157; %Nm
-        MaxVel = 104; %rad/s
+        StallTorque = 0.3924; %Nm
+        MaxVel = 19.9; %rad/s
 
         % Motor Constants (calculated from above)
         KtR; % kt/R = Stall Torque / Voltage
@@ -56,10 +52,11 @@ classdef MipSim < handle
         %   From Numerical Renaissance (derived from nonlinear MiP model),
         %   [K2*Ct, K1; K3, K2*Ct] x'' = [K2*St*(theta')^2 + torque; K4*St - torque]
 
-            Ct = cos(x(1));
             St = sin(x(1));
+            Ct = cos(x(1));
 
-            voltage = min(max(voltage, -6),6);
+            maxVolts = 6;
+            voltage = min(max(voltage, -maxVolts),maxVolts);
 
             torque = o.KtR*voltage - o.KtR * o.Kv * x(4);
             acc = [
@@ -135,14 +132,17 @@ classdef MipSim < handle
         %   system at the exact uprighted position.
 
             [A,B] = o.linearizedInverted();
-            C = [1 0 0 0];
+            C = [1 0 0 0 ];
             s = tf('s');
             TF = C * inv(s*eye(4) - A) * B;
         end
 
         % xbar = [theta, phi, theta', phi']'
         function [A, B] = linearized(o,xbar, ubar)
-        % LINEARIZED To be completed
+        % LINEARIZED Computes linearized version of system using Jacobian
+        %   Ideally used to find linear forms at equilibrium points
+        %   A \approx Dx f(xbar, ubar)
+        %   B \approx Du f(xbar, ubar)
 
             Ct = cos(xbar(1));
             St = sin(xbar(1));
