@@ -206,7 +206,7 @@ classdef MipSim < handle
 
             wheel = rectangle('Position', [y-r -r 2*r 2*r], 'Curvature', [1 1]);
             rod = line([y y2], [0 z]);
-            wheelPos = line([y y+r*cos(phi)], [0 r*sin(phi)]);
+            wheelPos = line([y y+r*cos(phi)], [0 r*sin(phi)], 'Color', 'k');
         end
     end
 end
