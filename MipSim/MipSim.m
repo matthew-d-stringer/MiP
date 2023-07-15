@@ -2,7 +2,7 @@ classdef MipSim
     properties 
         Iw = 3.815e-5; % kg*m^2
         Mw = 0.033*2; % kg
-        Ib = 0.836*1/12*((16/100)^2 + (4/100)^2); % kg*m^2
+        Ib = 0.836*1/12*0.135^2; % kg*m^2
         Mb = 0.836; % kg
         r   = 0.034; % m
         l   = 0.08; % m
@@ -14,6 +14,10 @@ classdef MipSim
 
         StallTorque = 0.157; %Nm
         MaxVel = 104; %rad/s
+
+        % Motor Constants (calculated from above)
+        KtR; % kt/R = Stall Torque / Voltage
+        Kv;  % Kv = Voltage / freeload speed
 
         % Below are constants used in the differential equation
         K1;
@@ -27,6 +31,9 @@ classdef MipSim
     end
     methods
         function obj = MipSim(obj) 
+            obj.KtR = obj.StallTorque/6; 
+            obj.Kv = 6/obj.MaxVel; 
+
             obj.K1 = obj.Iw + (obj.Mw + obj.Mb)*obj.r^2;
             obj.K2 = obj.Mb*obj.r*obj.l;
             obj.K3 = obj.Ib + obj.Mb * obj.l^2;
@@ -43,11 +50,12 @@ classdef MipSim
             Ct = cos(x(1));
             St = sin(x(1));
             
-            torque = o.StallTorque*voltage - o.StallTorque/o.MaxVel * x(4);
+            % torque = o.StallTorque*voltage - o.StallTorque/o.MaxVel * x(4);
+            torque = o.KtR*voltage - o.KtR * o.Kv * x(4);
             % torque = voltage;
             acc = [
-                o.K1     o.K2*Ct
-                o.K2*Ct  o.K3
+                o.K2*Ct  o.K1
+                o.K3     o.K2*Ct
             ]\[
                 o.K2*St*x(3)^2 + torque
                 o.K4*St - torque
@@ -75,7 +83,7 @@ classdef MipSim
                 x(:,ii) = o.update(x(:, ii-1), uFunc(x(:, ii-1)), dt);
                 if isnan(x(:,ii))
                     x = x(:,1:(ii-1));
-                    print("Failed because x became NaN")
+                    disp('Failed because x became NaN')
                     break;
                 end
             end
@@ -94,10 +102,10 @@ classdef MipSim
 
             G = [
                 zeros(2) eye(2)
-                zeros(1,3) -o.StallTorque/o.MaxVel
-                o.Mb*9.8*o.l 0 0 o.StallTorque/o.MaxVel
-            ]
-            D = [ 0; 0; o.StallTorque; -o.StallTorque; ];
+                zeros(1,3) -o.KtR*o.Kv
+                o.Mb*9.8*o.l 0 0 o.KtR*o.Kv
+            ];
+            D = [ 0; 0; o.KtR; -o.KtR; ];
 
             A = E\G;
             B = E\D;
@@ -163,13 +171,16 @@ classdef MipSim
         end
 
         function [wheel, rod, wheelPos] = updateObjs(this, theta, phi)
+            l = 5;
             y = -this.r*phi;
-            z = this.l*cos(theta);
-            y2 = y - this.l*sin(theta);
+            z = l*cos(theta);
+            y2 = y - l*sin(theta);
 
-            wheel = rectangle('Position', [y-this.r -this.r 2*this.r 2*this.r], 'Curvature', [1 1]);
+            r = 1;
+
+            wheel = rectangle('Position', [y-r -r 2*r 2*r], 'Curvature', [1 1]);
             rod = line([y y2], [0 z]);
-            wheelPos = line([y y+this.r*cos(phi)], [0 this.r*sin(phi)]);
+            wheelPos = line([y y+r*cos(phi)], [0 r*sin(phi)]);
         end
     end
 end
