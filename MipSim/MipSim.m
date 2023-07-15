@@ -148,16 +148,13 @@ classdef MipSim
             ];
         end
 
-        function animateWithConstantTorque(o, x0, torque, dt) 
-            o.animateWithComputedTorque(x0, @() torque, dt);
-        end
-
-        function animateWithComputedTorque(o, x0, torqueFunc, dt)
-            Tf = 10;
+        function frames = animateWithComputedU(o, x0, uFunc, dt, Tf)
             t = 0:dt:Tf;
-            x = o.run(x0, torqueFunc, dt, Tf);
+            x = o.run(x0, uFunc, dt, Tf);
             axis(o.axisVals);
             o.updateObjs(x(1,1), x(2,1));
+
+            frames = [getframe(gcf)];
             tic;
             for ii=2:length(t)
                 clf;
@@ -165,9 +162,22 @@ classdef MipSim
                 axis(o.axisVals);
                 o.updateObjs(x(1,ii), x(2,ii));
                 drawnow;
+                frames = [frames getframe(gcf)];
                 pause(dt-toc);
                 tic;
             end
+
+        end
+
+        function saveAnimation(o, filename, frames, dt)
+            video = VideoWriter('Animation.avi');
+            video.Quality = 95;
+            video.FrameRate = 1/dt;
+            open(video);
+            for frame=frames
+                writeVideo(video,frame);
+            end
+            close(video)
         end
 
         function [wheel, rod, wheelPos] = updateObjs(this, theta, phi)
