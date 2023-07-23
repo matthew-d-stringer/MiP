@@ -12,7 +12,9 @@ sim.xyRange([-4 10], -1);
 
 % sim.updateObjs(x0(1), x0(2));
 
-frames = sim.animateWithComputedU(x0, @(x) -K*x, 0.001, 3);
+controller = SSController(K);
+
+frames = sim.animateWithComputedU(x0, controller, 0.001, 3);
 % sim.saveAnimation('Animation.avi', frames);
 
 % TF = sim.linearizedTransferFunction()

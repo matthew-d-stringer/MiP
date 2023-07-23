@@ -26,7 +26,7 @@ classdef MipSim < Sim
         animationDt = 1/30;
     end
     methods
-        function o = MipSim(o) 
+        function o = MipSim() 
             o.KtR = o.StallTorque/6; 
             o.Kv = 6/o.MaxVel; 
 
@@ -73,17 +73,18 @@ classdef MipSim < Sim
             ];
         end
 
-        function x = run(o, x0, uFunc, dt, Tf)
+        function x = run(o, x0, controller, dt, Tf)
         % RUN Returns all following states from initial state x0 until final time
-        %   Tf using inputs calculated from uFunc(x)
+        %   Tf using inputs calculated from controller.control(t,x) from 
+        %   Controller abstract class
         %   
-        %   o.RUN([0.1;0;0;0], @(x) -K*x; 0.01, 10) Simulates system from x0 at t = 0
+        %   o.RUN([0.1;0;0;0], SSController(K); 0.01, 10) Simulates system from x0 at t = 0
         %   to t = 10 using the control law u=-Kx
             t = 0:dt:Tf;
             x = zeros(4,length(t));
             x(:,1) = x0;
             for ii = 2:length(t)
-                x(:,ii) = o.update(x(:, ii-1), uFunc(x(:, ii-1)), dt);
+                x(:,ii) = o.update(x(:, ii-1), controller.control(t(ii), x(:, ii-1)), dt);
                 if isnan(x(:,ii))
                     x = x(:,1:(ii-1));
                     disp('Failed because x became NaN')
@@ -178,12 +179,12 @@ classdef MipSim < Sim
             B = [0;0;B];
         end
 
-        function frames = animateWithComputedU(o, x0, uFunc, dt, Tf)
+        function frames = animateWithComputedU(o, x0, controller, dt, Tf)
         % ANIMATEWITHCOMPUTEDU Animates simulation starting at x0 from 0 to Tf
         %   and returns frames to be saved into animation using MipSim.saveAnimation()
         
             t = 0:dt:Tf;
-            x = o.run(x0, uFunc, dt, Tf);
+            x = o.run(x0, controller, dt, Tf);
 
             o.updateObjs(x(1,1), x(2,1));
 
