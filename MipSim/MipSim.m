@@ -1,4 +1,4 @@
-classdef MipSim < handle
+classdef MipSim < Sim
     properties 
         Iw = 3.815e-5; % kg*m^2
         Mw = 0.033*2; % kg
@@ -26,15 +26,15 @@ classdef MipSim < handle
         animationDt = 1/30;
     end
     methods
-        function obj = MipSim(obj) 
-            obj.KtR = obj.StallTorque/6; 
-            obj.Kv = 6/obj.MaxVel; 
+        function o = MipSim(o) 
+            o.KtR = o.StallTorque/6; 
+            o.Kv = 6/o.MaxVel; 
 
-            obj.K1 = obj.Iw + (obj.Mw + obj.Mb)*obj.r^2;
-            obj.K2 = obj.Mb*obj.r*obj.l;
-            obj.K3 = obj.Ib + obj.Mb * obj.l^2;
-            obj.K4 = obj.Mb*9.8*obj.l;
-            obj.axisVals = [-1 10 -1 10];
+            o.K1 = o.Iw + (o.Mw + o.Mb)*o.r^2;
+            o.K2 = o.Mb*o.r*o.l;
+            o.K3 = o.Ib + o.Mb * o.l^2;
+            o.K4 = o.Mb*o.g*o.l;
+            o.axisVals = [-1 10 -1 10];
         end
 
         function xyRange(obj, xVal, bottom)
@@ -71,16 +71,6 @@ classdef MipSim < handle
                 x(3:4)
                 acc
             ];
-        end
-
-        function newX = update(o, x, u, dt) 
-        % UPDATE Uses RK-4 to determine next state x from current state x and input u
-        %   dt seconds ahead from now.
-            k1 = o.f(x, u);
-            k2 = o.f(x + k1 * dt/2, u);
-            k3 = o.f(x + k2 * dt/2, u);
-            k4 = o.f(x + k3 * dt, u);
-            newX = x + (k1 + 2*k2 + 2*k3 + k4)/6 * dt;
         end
 
         function x = run(o, x0, uFunc, dt, Tf)
@@ -195,7 +185,6 @@ classdef MipSim < handle
             t = 0:dt:Tf;
             x = o.run(x0, uFunc, dt, Tf);
 
-            axis(o.axisVals);
             o.updateObjs(x(1,1), x(2,1));
 
             frames = [getframe(gcf)];
@@ -209,7 +198,7 @@ classdef MipSim < handle
 
                 clf;
                 title("Time = "+t(ii)+" Theta = "+rad2deg(x(1,ii))+" Phi = "+rad2deg(x(2,ii)));
-                axis(o.axisVals);
+                
                 o.updateObjs(x(1,ii), x(2,ii));
                 drawnow;
                 frames = [frames getframe(gcf)];
@@ -240,6 +229,8 @@ classdef MipSim < handle
             y2 = y - l*sin(theta);
 
             r = 1;
+
+            axis(this.axisVals);
 
             wheel = rectangle('Position', [y-r -r 2*r 2*r], 'Curvature', [1 1]);
             rod = line([y y2], [0 z]);
