@@ -118,14 +118,20 @@ classdef MipSim < Sim
             B = E\D;
         end
 
+        function u2t = linearizedU2ThetaTF(o)
+            u2t = tf([-(o.K2 + o.K3) 0 o.K4], [o.K1+o.K2 0 0]);
+        end
+
         function TF = linearizedTransferFunction(o)
         % LINEARIZEDTRANSFERFUNCTION Returns transfer function for linearized 
         %   system at the exact uprighted position.
 
-            [A,B] = o.linearizedInverted();
-            C = [1 0 0 0 ];
-            s = tf('s');
-            TF = C * inv(s*eye(4) - A) * B;
+            % [A,B] = o.linearizedInverted();
+            % C = [1 0 0 0 ];
+            % s = tf('s');
+            % TF = C * inv(s*eye(4) - A) * B;
+
+            TF = tf([o.K1],[(o.K2^2 - o.K1*o.K3) 0 o.K1*o.K4]);
         end
 
         % xbar = [theta, phi, theta', phi']'
