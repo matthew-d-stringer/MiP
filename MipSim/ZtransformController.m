@@ -14,7 +14,7 @@ classdef ZtransformController < Controller
             o.OutputWeights = Dem{1};
 
             o.prevInput = zeros(length(o.InputWeights), 1);
-            o.prevOutput = zeros(length(o.OutputWeights),1);
+            o.prevOutput = zeros(length(o.OutputWeights)-1,1);
 
             o.C = C;
         end
@@ -25,9 +25,9 @@ classdef ZtransformController < Controller
             o.prevInput = circshift(o.prevInput,1);
             o.prevInput(1) = y;
 
-            u = o.InputWeights * o.prevInput - o.OutputWeights(1:end-1) * o.prevOutput(1:end-1);
+            u = o.InputWeights * o.prevInput - o.OutputWeights(2:end) * o.prevOutput;
             
-            u = u/o.OutputWeights(end);
+            u = u/o.OutputWeights(1);
 
             % Shift input vector to add new output
             o.prevOutput = circshift(o.prevOutput,1);
