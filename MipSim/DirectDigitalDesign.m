@@ -1,7 +1,7 @@
 clear; close all; clc;
 sim = MipSim;
 
-x0 = [deg2rad(1) 0 0 0]';
+x0 = [deg2rad(15) 0 0 0]';
 
 dt = 0.001;
 
@@ -19,10 +19,11 @@ feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
 controller.addFeedForwardFunc(feedForwardFunc);
 
 % CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
+CompareDifferentThetaErrors(sim, [1 3:3:18], dt, 5, controller);
 
-sim.xyRange([-4 10], -1);
-frames = sim.animateWithComputedU(x0, controller, dt, 3);
-sim.saveAnimation('Animation.avi', frames);
+% sim.xyRange([-4 10], -1);
+% frames = sim.animateWithComputedU(x0, controller, dt, 3);
+% sim.saveAnimation('Animation.avi', frames);
 
 function voltage = antiGravityFunc(sim,t,x)
     Ct = cos(x(1));
