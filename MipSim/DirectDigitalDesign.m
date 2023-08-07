@@ -3,27 +3,26 @@ sim = MipSim;
 
 x0 = [deg2rad(1) 0 0 0]';
 
-TF = sim.linearizedU2ThetaTF();
-
-load("ControlSystemDesignerSession.mat");
-C = ControlSystemDesignerSession.DesignerData.Designs(1).Data.C;
-fprintf("Choosing Design: %s\n", ControlSystemDesignerSession.DesignerData.Designs(end).Name)
-
 dt = 0.001;
 
-H = c2d(C,dt);
+TF = sim.linearizedU2ThetaTF();
+discreteTF = c2d(TF, dt);
 
-feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
+load("DigitalFirstDesignSession.mat");
+H = ControlSystemDesignerSession.DesignerData.Designs(end).Data.C;
+fprintf("Choosing Design: %s\n", ControlSystemDesignerSession.DesignerData.Designs(end).Name)
 
 controller = ZtransformController(H, [1 0 0 0]);
 
-CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
+feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
+
+controller.addFeedForwardFunc(feedForwardFunc);
+
+% CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
 
 sim.xyRange([-4 10], -1);
-
-% figure;
-% frames = sim.animateWithComputedU(x0, controller, dt, 3);
-% sim.saveAnimation('Animation.avi', frames);
+frames = sim.animateWithComputedU(x0, controller, dt, 3);
+sim.saveAnimation('Animation.avi', frames);
 
 function voltage = antiGravityFunc(sim,t,x)
     Ct = cos(x(1));

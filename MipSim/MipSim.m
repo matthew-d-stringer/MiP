@@ -12,6 +12,8 @@ classdef MipSim < Sim
         MaxVel = 19.9; %rad/s
 
         % Motor Constants (calculated from above)
+        % Using equation for motor:
+        % V = IR + w Kv and I = Torque * Kt
         KtR; % kt/R = Stall Torque / Voltage
         Kv;  % Kv = Voltage / freeload speed
 
@@ -73,7 +75,7 @@ classdef MipSim < Sim
             ];
         end
 
-        function x = run(o, x0, controller, dt, Tf)
+        function [t, x, u] = run(o, x0, controller, dt, Tf)
         % RUN Returns all following states from initial state x0 until final time
         %   Tf using inputs calculated from controller.control(t,x) from 
         %   Controller abstract class
@@ -82,9 +84,11 @@ classdef MipSim < Sim
         %   to t = 10 using the control law u=-Kx
             t = 0:dt:Tf;
             x = zeros(4,length(t));
+            u = zeros(1,length(t));
             x(:,1) = x0;
             for ii = 2:length(t)
-                x(:,ii) = o.update(x(:, ii-1), controller.control(t(ii), x(:, ii-1)), dt);
+                u(ii) = controller.control(t(ii), x(:, ii-1));
+                x(:,ii) = o.update(x(:, ii-1), u(ii), dt);
                 if isnan(x(:,ii))
                     x = x(:,1:(ii-1));
                     disp('Failed because x became NaN')
@@ -189,8 +193,7 @@ classdef MipSim < Sim
         % ANIMATEWITHCOMPUTEDU Animates simulation starting at x0 from 0 to Tf
         %   and returns frames to be saved into animation using MipSim.saveAnimation()
         
-            t = 0:dt:Tf;
-            x = o.run(x0, controller, dt, Tf);
+            [t x inputs] = o.run(x0, controller, dt, Tf);
 
             o.updateObjs(x(1,1), x(2,1));
 
@@ -204,7 +207,7 @@ classdef MipSim < Sim
                 prevT = t(ii);
 
                 clf;
-                title("Time = "+t(ii)+" Theta = "+rad2deg(x(1,ii))+" Phi = "+rad2deg(x(2,ii)));
+                title("Time = "+t(ii)+" Theta = "+rad2deg(x(1,ii))+" Phi = "+rad2deg(x(2,ii))+" u = "+inputs(ii));
                 
                 o.updateObjs(x(1,ii), x(2,ii));
                 drawnow;

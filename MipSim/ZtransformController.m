@@ -6,6 +6,8 @@ classdef ZtransformController < Controller
         OutputWeights;
 
         C; % Matrix for finding y
+
+        feedForwardFunc = @(t,x) 0;
     end
     methods
         function o = ZtransformController(tf, C)
@@ -17,6 +19,19 @@ classdef ZtransformController < Controller
             o.prevOutput = zeros(length(o.OutputWeights)-1,1);
 
             o.C = C;
+        end
+
+        function reset(o)
+            o.prevInput = zeros(length(o.InputWeights), 1);
+            o.prevOutput = zeros(length(o.OutputWeights)-1,1);
+        end
+
+        function addFeedForwardFunc(o, feedForwardFunc)
+            o.feedForwardFunc = feedForwardFunc;
+        end
+
+        function removeFeedForwardFunc(o)
+            o.feedForwardFunc = @(t,x) 0;
         end
 
         function u = control(o,t,x)
@@ -32,6 +47,8 @@ classdef ZtransformController < Controller
             % Shift input vector to add new output
             o.prevOutput = circshift(o.prevOutput,1);
             o.prevOutput(1) = u;
+
+            u = u + o.feedForwardFunc(t,x);
         end
     end
 end
