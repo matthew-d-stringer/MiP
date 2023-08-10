@@ -2,7 +2,7 @@ clear; close all; clc;
 sim = MipSim;
 
 x0 = [deg2rad(15) 0 0 0]';
-
+    
 dt = 0.001;
 
 TF = sim.linearizedU2ThetaTF();
@@ -19,7 +19,7 @@ feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
 controller.addFeedForwardFunc(feedForwardFunc);
 
 % CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
-CompareDifferentThetaErrors(sim, [1 3:3:18], dt, 5, controller);
+% CompareDifferentThetaErrors(sim, [1 3:3:18], dt, 5, controller);
 
 % sim.xyRange([-4 10], -1);
 % frames = sim.animateWithComputedU(x0, controller, dt, 3);

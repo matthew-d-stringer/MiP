@@ -79,8 +79,13 @@ void loop() {
 
     float wheelAngle = getWheelAngle(encCount1);
 
-    writeToLeftMotor(1);
+//    writeToLeftMotor(theta);
+//    writeToRightMotor(theta);
 
+    Serial.print("Left Wheel: ");
+    Serial.print(wheelAngle);
+    Serial.print("\tRight Wheel: ");
+    Serial.println(getWheelAngle(encCount2));
 
     timedLoop(wheelAngle);
     
@@ -107,9 +112,9 @@ void timedLoop(float wheelAngle) {
     
     float speed = (wheelAngle - oldWheelAngle)/(time- oldMillis);
     // Serial.print("Wheel Speed: ");
-    Serial.print(time);
-    Serial.print(",");
-    Serial.println(speed * 1000);
+//    Serial.print(time);
+//    Serial.print(",");
+//    Serial.println(speed * 1000);
 
     oldWheelAngle = wheelAngle;
 
@@ -151,7 +156,7 @@ float getIMUAngle() {
     gyro_x = Wire.read() << 8 | Wire.read();          // reading registers: 0x43 (GYRO_XOUT_H) and 0x44 (GYRO_XOUT_L)
     gyro_y = Wire.read() << 8 | Wire.read();          // reading registers: 0x45 (GYRO_YOUT_H) and 0x46 (GYRO_YOUT_L)
     gyro_z = Wire.read() << 8 | Wire.read();          // reading registers: 0x47 (GYRO_ZOUT_H) and 0x48 (GYRO_ZOUT_L)
-
+    
     // Calculate theta [rads]:
     float theta = atan2(accelerometer_x, accelerometer_y);
     return theta;
