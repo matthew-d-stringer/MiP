@@ -1,7 +1,7 @@
 clear; close all; clc;
 sim = MipSim;
 
-x0 = [deg2rad(10) 0 0 0]';
+x0 = [deg2rad(5) 0 0 0]';
 
 dt = 0.005;
 
@@ -21,4 +21,7 @@ K = lqr(sys, Q, R);
 controller = SSController(K);
 
 sim.xyRange([-5 5], -1);
+[t, x, u] = sim.run(x0, controller, dt, 5);
 sim.animateWithComputedU(x0, controller, dt, 5);
+figure;
+plot(t, u)
