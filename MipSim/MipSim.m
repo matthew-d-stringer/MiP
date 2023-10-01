@@ -1,11 +1,24 @@
 classdef MipSim < Sim
     properties 
+        % Inertia of the wheel
         Iw = 3.815e-5; % kg*m^2
+
+        % Mass of the wheel
         Mw = 0.033*2; % kg
-        Ib = 0.836*1/12*0.135^2; % kg*m^2
+
+        % Inertia of the body about rotational axis
+        Ib = 0.03743067; % kg*m^2
+        
+        % Mass of body
         Mb = 0.836; % kg
-        r   = 0.034; % m
-        l   = 0.08; % m
+
+        % Radius of the wheel
+        r  = 0.034; % m
+
+        % Length to center of mass
+        l   = 0.261; % m
+
+        % Gravity
         g   = 9.81; % m/s^2
 
         StallTorque = 0.3924; %Nm

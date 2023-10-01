@@ -26,7 +26,7 @@ CompareDifferentThetaErrors(sim, [1 3:3:18], dt, 5, controller);
 sim.xyRange([-4 10], -1);
 
 % figure;
-% frames = sim.animateWithComputedU(x0, controller, dt, 5);
+% frames = sim.animateWithComputedU(x0, controller, dt, 5)
 % sim.saveAnimation('Animation.avi', frames);
 
 function voltage = antiGravityFunc(sim,t,x)
