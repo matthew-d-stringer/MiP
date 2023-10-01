@@ -1,4 +1,4 @@
-classdef ConstantController
+classdef ConstantController < Controller
     properties 
         u;
     end
