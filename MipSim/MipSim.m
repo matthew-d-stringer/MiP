@@ -7,8 +7,7 @@ classdef MipSim < Sim
         Mw = 0.033*2; % kg
 
         % Inertia of the body about rotational axis
-        % Ib = 0.056806862; % kg*m^2
-        Ib = 0.378375485;
+        Ib = 0.056806862; % kg*m^2
         
         % Mass of body
         Mb = 0.422; % kg
@@ -17,8 +16,7 @@ classdef MipSim < Sim
         r  = 0.034; % m
 
         % Length to center of mass
-        % l   = 0.319; % m
-        l = 0.770;
+        l   = 0.319; % m
 
         % Gravity
         g   = 9.81; % m/s^2
