@@ -18,11 +18,12 @@ H = -1* c2d(C, dt);
 feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
 
 controller = ZtransformController(H, [1 0 0 0]);
-controller.addFeedForwardFunc(feedForwardFunc);
+% controller.addFeedForwardFunc(feedForwardFunc);
 
 CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
 
-% sim.animateWithComputedU(x0, controller, dt, 3);
+% frames = sim.animateWithComputedU(x0, controller, dt, 3);
+% sim.saveAnimation("Animation.avi",frames);
 
 function voltage = antiGravityFunc(sim,t,x)
     Ct = cos(x(1));
