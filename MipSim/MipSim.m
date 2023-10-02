@@ -31,6 +31,9 @@ classdef MipSim < Sim
         Kv;  % Kv = Voltage / freeload speed
 
         % Below are constants used in the differential equation
+        % Defined such that the equation becomes:
+            % K1 phi'' + K2 cosTheta theta'' - K2 sinTheta (theta')^2 = tau
+            % K2 cosTheta phi'' + K3 theta'' - K4 sinTheta = tau
         K1;
         K2;
         K3;
@@ -136,7 +139,9 @@ classdef MipSim < Sim
         end
 
         function u2t = linearizedU2ThetaTF(o)
-            u2t = tf([-(o.K2 + o.K3) 0 o.K4], [o.K1+o.K2 0 0]);
+            % u2t = tf([-(o.K2 + o.K3) 0 o.K4], [o.K1+o.K2 0 0]);
+            % u2t = tf([1+o.K2/o.K1], [(o.K2^2/o.K1 - o.K3) 0 o.K4]);
+            u2t = tf([-(o.K2/o.K1+1)], [(-o.K2^2/o.K1 + o.K3) 0 -o.K4]);
         end
 
         function TF = linearizedTransferFunction(o)
