@@ -5,7 +5,8 @@ x0 = [-deg2rad(10) 0 0 0]';
 
 dt = 0.001;
 
-TF = sim.linearizedU2ThetaTF();
+G1 = sim.linearizedU2ThetaTF();
+G2 = sim.linearizedTheta2Phi();
 
 load("DiscreteEquivalentDesign.mat");
 Controller = ControlSystemDesignerSession.DesignerData.Designs(end);
@@ -20,7 +21,7 @@ feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
 controller = ZtransformController(H, [1 0 0 0]);
 % controller.addFeedForwardFunc(feedForwardFunc);
 
-CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
+% CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
 
 % frames = sim.animateWithComputedU(x0, controller, dt, 3);
 % sim.saveAnimation("Animation.avi",frames);

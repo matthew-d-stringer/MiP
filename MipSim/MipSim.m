@@ -139,9 +139,13 @@ classdef MipSim < Sim
         end
 
         function u2t = linearizedU2ThetaTF(o)
-            % u2t = tf([-(o.K2 + o.K3) 0 o.K4], [o.K1+o.K2 0 0]);
-            % u2t = tf([1+o.K2/o.K1], [(o.K2^2/o.K1 - o.K3) 0 o.K4]);
-            u2t = tf([-(o.K2/o.K1+1)], [(-o.K2^2/o.K1 + o.K3) 0 -o.K4]);
+            torque2t = tf([-(o.K2/o.K1+1)], [(-o.K2^2/o.K1 + o.K3) 0 -o.K4]);
+            volts2torque = tf([o.Iw 0], [o.Iw/o.KtR o.Kv]);
+            u2t = volts2torque * torque2t;
+        end
+
+        function t2p = linearizedTheta2Phi(o)
+            t2p = tf([-(o.K1 + o.K2) 0 0], [(o.K3 + o.K2) 0 -o.K4]);
         end
 
         function TF = linearizedTransferFunction(o)
