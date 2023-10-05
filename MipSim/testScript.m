@@ -3,7 +3,8 @@ sim = MipSim;
 
 x0 = [-deg2rad(10) 0 0 0]';
 
-dt = 0.001;
+dt = 0.001; % Sample time of controller
+simDt = 0.0005; % Sample time of simulation
 
 G1 = sim.linearizedU2ThetaTF();
 G2 = sim.linearizedTheta2Phi();
@@ -15,7 +16,7 @@ fprintf("Choosing Design: %s\n", Controller.Name)
 
 H = -1* c2d(C, dt);
 % H = tf([1], [1], dt);
-
+    
 feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
 
 controller = ZtransformController(H, [1 0 0 0]);
@@ -23,7 +24,7 @@ controller = ZtransformController(H, [1 0 0 0]);
 
 % CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
 
-% frames = sim.animateWithComputedU(x0, controller, dt, 3);
+frames = sim.animateWithComputedU(x0, controller, simDt, 3);
 % sim.saveAnimation("Animation.avi",frames);
 
 function voltage = antiGravityFunc(sim,t,x)

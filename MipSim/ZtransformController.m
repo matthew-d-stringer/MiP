@@ -11,6 +11,7 @@ classdef ZtransformController < Controller
     end
     methods
         function o = ZtransformController(tf, C)
+            o = o@Controller(tf.Ts);
             [Num, Dem] = tfdata(tf);
             o.InputWeights = Num{1};
             o.OutputWeights = Dem{1};

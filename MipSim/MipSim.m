@@ -103,7 +103,7 @@ classdef MipSim < Sim
             u = zeros(1,length(t));
             x(:,1) = x0;
             for ii = 2:length(t)
-                u(ii) = controller.control(t(ii), x(:, ii-1));
+                u(ii) = controller.timedControl(t(ii), x(:, ii-1));
                 x(:,ii) = o.update(x(:, ii-1), u(ii), dt);
                 if isnan(x(:,ii))
                     x = x(:,1:(ii-1));
@@ -139,6 +139,7 @@ classdef MipSim < Sim
         end
 
         function u2t = linearizedU2ThetaTF(o)
+        % LINEARIZEDU2THETATF Returns the transfer function for Theta(s)/U(s)
             torque2t = tf([-(o.K2/o.K1+1)], [(-o.K2^2/o.K1 + o.K3) 0 -o.K4]);
             volts2torque = tf([o.Iw 0], [o.Iw/o.KtR o.Kv]);
             u2t = volts2torque * torque2t;

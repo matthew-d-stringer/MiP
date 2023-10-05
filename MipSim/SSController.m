@@ -3,7 +3,8 @@ classdef SSController < Controller
         K;
     end
     methods
-        function o = SSController(K)
+        function o = SSController(K, dt)
+            o = o@Controller(dt);
             o.K = K;
         end
 
