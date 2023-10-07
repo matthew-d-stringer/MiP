@@ -6,7 +6,7 @@
 #define LMotorPinSign2 44
 #define RMotorPinSign1 46
 #define RMotorPinSign2 48
-
+  
 #define LMotorValPin 8
 #define RMotorValPin 9
 
@@ -32,6 +32,9 @@ static void rMotorPinInterrupt() {
 void setup() {
   lMotor.attachEncInterrupt(lMotorPinInterrupt);
   rMotor.attachEncInterrupt(rMotorPinInterrupt);
+
+  lMotor.reverseOutput(true);
+  rMotor.reverseEnc(true);
   
   Serial.begin(115200);
   mpu.setup();
@@ -39,22 +42,41 @@ void setup() {
 }
 
 void loop() {
-  lMotor.writeToMotor(0);
-  rMotor.writeToMotor(0);
+  if(millis() <= 3000){
+    lMotor.writeToMotor(0);
+    rMotor.writeToMotor(0);
+  } else if(millis() <= 6000) {
+    lMotor.writeToMotor(0);
+    rMotor.writeToMotor(0);
+  } else {
+    lMotor.writeToMotor(0);
+    rMotor.writeToMotor(0);
+  }
 
   mpu.readMPUData();
-  theta.filter(mpu.calcTheta());
+  // theta.filter(mpu.calcTheta());
 
-  Serial.print(mpu.calcTheta() * 180/PI);
-  Serial.print(",");
-  Serial.print(theta.getVal() * 180/PI);
-  Serial.println();
+  // Serial.print(mpu.calcTheta() * 180/PI);
+  // Serial.print(",");
+  // Serial.print(theta.getVal() * 180/PI);
+  // Serial.println();
 
-  // mpu.printGyroData();
+  // Serial.print(mpu.calcTheta() * 180/PI);
+  // Serial.print(",");
+  // Serial.println(mpu.compFilterTheta() * 180/PI);
 
-//   Serial.print("Right Encoder: ");
-//   Serial.print(rMotor.encVal());
-//   Serial.print("Left Encoder: ");
-//   Serial.print(lMotor.encVal());
-//   Serial.println();
+  mpu.printGyroData();
+  mpu.printAccData();
+
+  // Serial.print("Right Encoder: ");
+  // Serial.print(rMotor.getEncAngleDeg());
+  // Serial.print("\tLeft Encoder: ");
+  // Serial.print(lMotor.getEncAngleDeg());
+  // Serial.println();
+
+  // Serial.print("Right Encoder: ");
+  // Serial.print(rMotor.encVal());
+  // Serial.print("\tLeft Encoder: ");
+  // Serial.print(lMotor.encVal());
+  // Serial.println();
 }

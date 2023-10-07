@@ -1,12 +1,18 @@
 #include <Wire.h>
+#include "CompFilter.h"
 #define MPU_I2C_Addr 0x68
 
 class MPU {
 private:
     float AccX, AccY, AccZ;
     float GyroX, GyroY, GyroZ;
+
+    CompFilter* Theta;
+
+    int pMillis = 0;
 public:
     MPU(){
+        Theta = new CompFilter(0.98);
     }
 
     void setup() {
@@ -43,6 +49,16 @@ public:
 
     float calcTheta() {
         return atan2(AccZ, -AccY) + 5.71*PI/180;
+    }
+
+    float compFilterTheta() {
+        int cMillis = millis();
+        float AccTheta = atan2(AccZ, -AccY) + 5.71*PI/180;
+        float gyroThetaGain = GyroX * (cMillis - pMillis);
+
+        Theta->filter(AccTheta, gyroThetaGain);
+
+        pMillis = cMillis;
     }
 
     void printAccData() {

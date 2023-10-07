@@ -7,6 +7,11 @@ private:
     int motorSignPin1;
     int motorSignPin2;
     int motorValPin;
+
+    bool flipOutput = false;
+    bool flipEncCount = false;
+
+    int ticksPerRev = 1250;
 public:
     Motor(int motorSignPin1, int motorSignPin2, int motorValPin, 
         int encoderA, int encoderB) {
@@ -27,9 +32,18 @@ public:
         pinMode(motorValPin, OUTPUT);
     }
 
+    void reverseOutput(bool flipOutput) {
+        this->flipOutput = flipOutput;
+    }
+
+    void reverseEnc(bool flipEncCount) {
+        this->flipEncCount = flipEncCount;
+    }
+
     void writeToMotor(float input) {
         input = min(input, 1);
         input = max(input, -1);
+        input = flipOutput ? -input : input;
         int sig = input >= 0;
         digitalWrite(motorSignPin1, !sig);
         digitalWrite(motorSignPin2, sig);
@@ -40,14 +54,25 @@ public:
 
     void encoderPinChange() {
 //        Serial.println("Enc change");
-        encCount += digitalRead(encoderA) == digitalRead(encoderB) ? -1 : 1;
+        if(flipEncCount)
+            encCount -= digitalRead(encoderA) == digitalRead(encoderB) ? -1 : 1;
+        else 
+            encCount += digitalRead(encoderA) == digitalRead(encoderB) ? -1 : 1;
     }
 
-    void attachEncInterrupt(void* functionPtr){
+    void attachEncInterrupt(void (*functionPtr)()){
         attachInterrupt(digitalPinToInterrupt(encoderB), functionPtr, CHANGE);
     }
 
     int encVal() {
         return encCount;
+    }
+
+    float getEncAngle() {
+        return (float) encCount /  (float) ticksPerRev * 2 * PI;
+    }
+
+    float getEncAngleDeg() {
+        return (float) encCount / (float) ticksPerRev * 360;
     }
 };
