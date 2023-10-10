@@ -3,16 +3,24 @@
 #define MPU_I2C_Addr 0x68
 
 class MPU {
-private:
+public:
     float AccX, AccY, AccZ;
     float GyroX, GyroY, GyroZ;
 
+    float AccErrorX, AccErrorY, AccErrorZ;
+    float GyroErrorX, GyroErrorY, GyroErrorZ;
+
+    float XCalibrationVal = -7;
+
     CompFilter* Theta;
+    CompFilter* Theta2;
 
     int pMillis = 0;
+    int pMillis2 = 0;
 public:
     MPU(){
-        Theta = new CompFilter(0.98);
+        Theta = new CompFilter(0.9);
+        Theta2 = new CompFilter(0.1);
     }
 
     void setup() {
@@ -22,10 +30,6 @@ public:
         Wire.write(0x00);
         Wire.endTransmission(true);
     }
-    // char* convert_int16_to_str(int16_t i) { // converts int16 to string. Moreover, resulting strings will have the same length in the debug monitor.
-    //     sprintf(tmp_str, "%6d", i);
-    //     return tmp_str; 
-    // }
     
     void readMPUData() {
         Wire.beginTransmission(MPU_I2C_Addr);
@@ -47,18 +51,40 @@ public:
         GyroZ = (Wire.read() << 8 | Wire.read()) / 131.0;
     }
 
+    void calibrate() {
+        int numReadings = 1000;
+        for(int c = 0; c < numReadings; c++) {
+            readMPUData();
+            AccErrorX += (atan((AccY) / sqrt(pow((AccX), 2) + pow((AccZ), 2))) * 180 / PI);
+            AccErrorY += (atan(-1 * (AccX) / sqrt(pow((AccY), 2) + pow((AccZ), 2))) * 180 / PI);
+            GyroErrorX += GyroX;
+            GyroErrorY += GyroY;
+            GyroErrorZ += GyroZ;
+        }
+        AccErrorX /=  numReadings;
+        AccErrorY /=  numReadings;
+        GyroErrorX /= numReadings;
+        GyroErrorY /= numReadings;
+        GyroErrorZ /= numReadings;
+
+        // GyroErrorY -= 90;
+        // AccErrorY -= 90;
+
+        Serial.println("Calibrated!");
+    }
+
     float calcTheta() {
-        return atan2(AccZ, -AccY) + 5.71*PI/180;
+        // return (atan(-1 * AccX / sqrt(pow(AccY, 2) + pow(AccZ, 2))) * 180 / PI) - AccErrorY;
+        // return (atan(-1 * AccX / sqrt(pow(AccY, 2) + pow(AccZ, 2))) * 180 / PI);
+        return atan2(AccZ, -AccY) * 180/PI;
     }
 
     float compFilterTheta() {
-        int cMillis = millis();
-        float AccTheta = atan2(AccZ, -AccY) + 5.71*PI/180;
-        float gyroThetaGain = GyroX * (cMillis - pMillis);
+        return Theta->filter(calcTheta(), GyroX);
+    }
 
-        Theta->filter(AccTheta, gyroThetaGain);
-
-        pMillis = cMillis;
+    float getGyroX() {
+        return GyroX - GyroErrorX;
     }
 
     void printAccData() {

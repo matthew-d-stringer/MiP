@@ -1,6 +1,7 @@
 #include "Motor.h"
 #include "MPU.h"
 #include "LPassFilter.h"
+#include "Integrator.h"
 
 #define LMotorPinSign1 42
 #define LMotorPinSign2 44
@@ -22,6 +23,10 @@ MPU mpu;
 
 LPassFilter theta(0.1);
 
+CompFilter ThetaGyro(0.98), ThetaAcc(0.1);
+
+Integrator gyro;
+
 static void lMotorPinInterrupt() {
   lMotor.encoderPinChange();
 }
@@ -38,14 +43,15 @@ void setup() {
   
   Serial.begin(115200);
   mpu.setup();
-  Serial.println("Theta");
+  mpu.calibrate();
+  Serial.println("Raw Gyro Acc");
 }
 
 void loop() {
   if(millis() <= 3000){
     lMotor.writeToMotor(0);
     rMotor.writeToMotor(0);
-  } else if(millis() <= 6000) {
+  } else if(millis() <= 6000) { 
     lMotor.writeToMotor(0);
     rMotor.writeToMotor(0);
   } else {
@@ -61,12 +67,20 @@ void loop() {
   // Serial.print(theta.getVal() * 180/PI);
   // Serial.println();
 
+  gyro.integrate(mpu.getGyroX());
+  
+  Serial.print(mpu.calcTheta());
+  Serial.print(',');
+  Serial.println(ThetaGyro.filter(mpu.calcTheta(), mpu.getGyroX()));
+
   // Serial.print(mpu.calcTheta() * 180/PI);
   // Serial.print(",");
-  // Serial.println(mpu.compFilterTheta() * 180/PI);
+  // Serial.print(ThetaGyro.filter(mpu.calcTheta(), mpu.getGyroX()) * 180/PI);
+  // Serial.print(",");
+  // Serial.println(ThetaAcc.filter(mpu.calcTheta(), mpu.getGyroX()) * 180/PI);
 
-  mpu.printGyroData();
-  mpu.printAccData();
+  // mpu.printGyroData();
+  // mpu.printAccData();
 
   // Serial.print("Right Encoder: ");
   // Serial.print(rMotor.getEncAngleDeg());
