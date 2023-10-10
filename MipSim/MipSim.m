@@ -7,10 +7,10 @@ classdef MipSim < Sim
         Mw = 0.033*2; % kg
 
         % Inertia of the body about rotational axis
-        Ib = 0.056806862; % kg*m^2
+        Ib = 0.01981217487; % kg*m^2
         
         % Mass of body
-        Mb = 0.422; % kg
+        Mb = 0.570; % kg
 
         % Radius of the wheel
         r  = 0.034; % m
@@ -45,6 +45,7 @@ classdef MipSim < Sim
     end
     methods
         function o = MipSim() 
+            o.Mb = o.Mb - o.Mw;
             o.KtR = o.StallTorque/6; 
             o.Kv = 6/o.MaxVel; 
 
