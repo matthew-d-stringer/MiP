@@ -67,23 +67,18 @@ public:
         GyroErrorY /= numReadings;
         GyroErrorZ /= numReadings;
 
-        // GyroErrorY -= 90;
-        // AccErrorY -= 90;
-
         Serial.println("Calibrated!");
     }
 
-    float calcTheta() {
-        // return (atan(-1 * AccX / sqrt(pow(AccY, 2) + pow(AccZ, 2))) * 180 / PI) - AccErrorY;
-        // return (atan(-1 * AccX / sqrt(pow(AccY, 2) + pow(AccZ, 2))) * 180 / PI);
+    float angleFromAcc() {
         return atan2(AccZ, -AccY) * 180/PI;
     }
 
     float compFilterTheta() {
-        return Theta->filter(calcTheta(), GyroX);
+        return Theta->filter(angleFromAcc(), GyroX);
     }
 
-    float getGyroX() {
+    float angularRateFromGyro() {
         return GyroX - GyroErrorX;
     }
 

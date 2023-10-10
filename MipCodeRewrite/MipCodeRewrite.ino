@@ -21,11 +21,7 @@ Motor rMotor(RMotorPinSign1, RMotorPinSign2, RMotorValPin, encoder2A, encoder2B)
 
 MPU mpu;
 
-LPassFilter theta(0.1);
-
-CompFilter ThetaGyro(0.98), ThetaAcc(0.1);
-
-Integrator gyro;
+CompFilter compFilterOfTheta(0.98);
 
 static void lMotorPinInterrupt() {
   lMotor.encoderPinChange();
@@ -48,49 +44,10 @@ void setup() {
 }
 
 void loop() {
-  if(millis() <= 3000){
-    lMotor.writeToMotor(0);
-    rMotor.writeToMotor(0);
-  } else if(millis() <= 6000) { 
-    lMotor.writeToMotor(0);
-    rMotor.writeToMotor(0);
-  } else {
-    lMotor.writeToMotor(0);
-    rMotor.writeToMotor(0);
-  }
-
   mpu.readMPUData();
-  // theta.filter(mpu.calcTheta());
+  compFilterOfTheta.filter(mpu.angleFromAcc(), mpu.angularRateFromGyro());
 
-  // Serial.print(mpu.calcTheta() * 180/PI);
-  // Serial.print(",");
-  // Serial.print(theta.getVal() * 180/PI);
-  // Serial.println();
-
-  gyro.integrate(mpu.getGyroX());
-  
-  Serial.print(mpu.calcTheta());
+  Serial.print(mpu.angleFromAcc());
   Serial.print(',');
-  Serial.println(ThetaGyro.filter(mpu.calcTheta(), mpu.getGyroX()));
-
-  // Serial.print(mpu.calcTheta() * 180/PI);
-  // Serial.print(",");
-  // Serial.print(ThetaGyro.filter(mpu.calcTheta(), mpu.getGyroX()) * 180/PI);
-  // Serial.print(",");
-  // Serial.println(ThetaAcc.filter(mpu.calcTheta(), mpu.getGyroX()) * 180/PI);
-
-  // mpu.printGyroData();
-  // mpu.printAccData();
-
-  // Serial.print("Right Encoder: ");
-  // Serial.print(rMotor.getEncAngleDeg());
-  // Serial.print("\tLeft Encoder: ");
-  // Serial.print(lMotor.getEncAngleDeg());
-  // Serial.println();
-
-  // Serial.print("Right Encoder: ");
-  // Serial.print(rMotor.encVal());
-  // Serial.print("\tLeft Encoder: ");
-  // Serial.print(lMotor.encVal());
-  // Serial.println();
+  Serial.println(compFilterOfTheta.getVal());
 }
