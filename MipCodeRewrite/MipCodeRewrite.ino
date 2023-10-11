@@ -1,7 +1,8 @@
 #include "Motor.h"
 #include "MPU.h"
 #include "LPassFilter.h"
-#include "Integrator.h"
+#include "Derivative.h"
+#include "ModernController.h"
 
 #define LMotorPinSign1 42
 #define LMotorPinSign2 44
@@ -23,6 +24,11 @@ MPU mpu;
 
 CompFilter compFilterOfTheta(0.98);
 
+Derivative phiDot;
+ModernController controller;
+
+int pTime = 0;
+
 static void lMotorPinInterrupt() {
   lMotor.encoderPinChange();
 }
@@ -41,6 +47,10 @@ void setup() {
   mpu.setup();
   mpu.calibrate();
   Serial.println("Raw Gyro Acc");
+  while(mpu.angleFromAcc() > 10)
+    mpu.readMPUData();
+  
+  pTime = millis();
 }
 
 void loop() {
@@ -50,4 +60,31 @@ void loop() {
   Serial.print(mpu.angleFromAcc());
   Serial.print(',');
   Serial.println(compFilterOfTheta.getVal());
+
+  float theta = compFilterOfTheta.getVal() * PI/180;
+  float thetaRate = mpu.angularRateFromGyro() * PI/180;
+
+  float phi = (lMotor.getEncAngle() + rMotor.getEncAngle())/2;
+  float phiRate = phiDot.differentiate(phi);
+
+  float voltage = controller.control(theta, phi, thetaRate, phiRate);
+
+  if(abs(theta) > 30 * PI/180) 
+    voltage = 0;
+
+  int cTime = millis();
+  Serial.print(cTime - pTime);
+  Serial.print(",");
+  Serial.print(theta * 180/PI);
+  Serial.print(",");
+  Serial.print(phi * 180/PI);
+  Serial.print(",");
+  Serial.println(voltage);
+
+  // mpu.printAccData();
+
+  lMotor.writeToMotor(voltage);
+  rMotor.writeToMotor(voltage);
+
+  pTime = cTime;
 }

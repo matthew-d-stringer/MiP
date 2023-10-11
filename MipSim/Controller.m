@@ -11,6 +11,10 @@ classdef (Abstract) Controller < handle
         function o = Controller(dt)
             o.dt = dt;
         end
+        function reset(o) 
+            o.pT = 0;
+            o.pU = 0;
+        end
         function u = timedControl(o, t, x) 
             if o.pT + o.dt <= t
                 u = o.control(t,x);

@@ -7,7 +7,7 @@ public:
     float AccX, AccY, AccZ;
     float GyroX, GyroY, GyroZ;
 
-    float AccErrorX, AccErrorY, AccErrorZ;
+    float AccErrorX = 0, AccErrorY = 0, AccErrorZ = 0;
     float GyroErrorX, GyroErrorY, GyroErrorZ;
 
     float XCalibrationVal = -7;
@@ -37,6 +37,26 @@ public:
         Wire.endTransmission(false);
         Wire.requestFrom(MPU_I2C_Addr, 6, true); 
 
+        AccX = (Wire.read() << 8 | Wire.read()) / 16384.0 - AccErrorX; // X-axis value
+        AccY = (Wire.read() << 8 | Wire.read()) / 16384.0 - AccErrorY; // Y-axis value
+        AccZ = (Wire.read() << 8 | Wire.read()) / 16384.0 - AccErrorZ; 
+
+        Wire.beginTransmission(MPU_I2C_Addr);
+        Wire.write(0x43); // Gyro data first register address 0x43
+        Wire.endTransmission(false);
+        Wire.requestFrom(MPU_I2C_Addr, 6, true); 
+
+        GyroX = (Wire.read() << 8 | Wire.read()) / 131.0 - GyroErrorX; // For a 250deg/s range we have to divide first the raw value by 131.0, according to the datasheet
+        GyroY = (Wire.read() << 8 | Wire.read()) / 131.0 - GyroErrorY;
+        GyroZ = (Wire.read() << 8 | Wire.read()) / 131.0 - GyroErrorZ;
+    }
+
+    void readRawMPUData() {
+        Wire.beginTransmission(MPU_I2C_Addr);
+        Wire.write(0x3B); // Start with register 0x3B (ACCEL_XOUT_H)
+        Wire.endTransmission(false);
+        Wire.requestFrom(MPU_I2C_Addr, 6, true); 
+
         AccX = (Wire.read() << 8 | Wire.read()) / 16384.0; // X-axis value
         AccY = (Wire.read() << 8 | Wire.read()) / 16384.0; // Y-axis value
         AccZ = (Wire.read() << 8 | Wire.read()) / 16384.0; 
@@ -54,15 +74,17 @@ public:
     void calibrate() {
         int numReadings = 1000;
         for(int c = 0; c < numReadings; c++) {
-            readMPUData();
-            AccErrorX += (atan((AccY) / sqrt(pow((AccX), 2) + pow((AccZ), 2))) * 180 / PI);
-            AccErrorY += (atan(-1 * (AccX) / sqrt(pow((AccY), 2) + pow((AccZ), 2))) * 180 / PI);
+            readRawMPUData();
+            AccErrorX += AccX;
+            AccErrorY += AccY;
+            AccErrorZ += AccZ - 1;
             GyroErrorX += GyroX;
             GyroErrorY += GyroY;
             GyroErrorZ += GyroZ;
         }
         AccErrorX /=  numReadings;
         AccErrorY /=  numReadings;
+        AccErrorZ /=  numReadings;
         GyroErrorX /= numReadings;
         GyroErrorY /= numReadings;
         GyroErrorZ /= numReadings;
@@ -79,11 +101,13 @@ public:
     }
 
     float angularRateFromGyro() {
-        return GyroX - GyroErrorX;
+        return GyroX;
     }
 
     void printAccData() {
-        Serial.print("Acc Data (x,y,z):");
+        // Serial.print("Acc Data (x,y,z):");
+        Serial.print(angleFromAcc());
+        Serial.print(",");
         Serial.print(AccX);
         Serial.print(",");
         Serial.print(AccY);

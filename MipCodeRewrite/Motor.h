@@ -40,7 +40,8 @@ public:
         this->flipEncCount = flipEncCount;
     }
 
-    void writeToMotor(float input) {
+    void writeToMotor(float voltage) {
+        float input = voltage/7.4;
         input = min(input, 1);
         input = max(input, -1);
         input = flipOutput ? -input : input;

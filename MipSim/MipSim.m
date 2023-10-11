@@ -103,8 +103,9 @@ classdef MipSim < Sim
             x = zeros(4,length(t));
             u = zeros(1,length(t));
             x(:,1) = x0;
+            controller.reset();
             for ii = 2:length(t)
-                u(ii) = controller.timedControl(t(ii), x(:, ii-1));
+                u(ii) = controller.timedControl(t(ii), x(:, ii-1) + deg2rad([5;0;0;0]));
                 x(:,ii) = o.update(x(:, ii-1), u(ii), dt);
                 if isnan(x(:,ii))
                     x = x(:,1:(ii-1));
