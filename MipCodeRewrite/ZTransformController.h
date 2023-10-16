@@ -25,14 +25,17 @@ public:
     }
     float control(float input) {
         float output = 0;
+        prevInputs.increment();
+        prevInputs[0] = input;
+
         for(int i = 0; i < prevInLen; i++)
             output += num[i] * prevInputs[i];
         for(int i = 1; i < prevOutLen; i++)
             output -= dem[i] * prevOutputs[i];
         output /= dem[0];
 
-        prevInputs.increment();
         prevOutputs.increment();
+        prevOutputs[0] = output;
 
         return output;
     }
