@@ -148,6 +148,7 @@ classdef MipSim < Sim
         end
 
         function t2p = linearizedTheta2Phi(o)
+        % LINEARIZEDTHETA2PHI  Returns the transfer function for PHI(s)/THETA(s)
             t2p = minreal(tf([(o.K3 + o.K2) 0 -o.K4], [-(o.K1 + o.K2) 0 0]));
         end
 
