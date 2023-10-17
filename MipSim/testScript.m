@@ -14,6 +14,8 @@ Controller = ControlSystemDesignerSession.DesignerData.Designs(end);
 C = Controller.Data.C;
 fprintf("Choosing Design: %s\n", Controller.Name)
 
+rlocus(G2)
+
 H = -1* c2d(C, dt);
 % H = tf([1], [1], dt);
     
@@ -24,7 +26,7 @@ controller = ZtransformController(H, [1 0 0 0]);
 
 % CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
 
-CompareDifferentThetaErrors(sim, 5:5:15, simDt, 5, controller);
+% CompareDifferentThetaErrors(sim, 5:5:15, simDt, 5, controller);
 
 % frames = sim.animateWithComputedU(x0, controller, simDt, 5);
 % sim.saveAnimation("Animation.avi",frames);

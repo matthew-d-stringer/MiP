@@ -148,7 +148,7 @@ classdef MipSim < Sim
         end
 
         function t2p = linearizedTheta2Phi(o)
-            t2p = tf([-(o.K1 + o.K2) 0 0], [(o.K3 + o.K2) 0 -o.K4]);
+            t2p = minreal(tf([(o.K3 + o.K2) 0 -o.K4], [-(o.K1 + o.K2) 0 0]));
         end
 
         function TF = linearizedTransferFunction(o)
