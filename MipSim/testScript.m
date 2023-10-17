@@ -14,9 +14,16 @@ Controller = ControlSystemDesignerSession.DesignerData.Designs(end);
 C = Controller.Data.C;
 fprintf("Choosing Design: %s\n", Controller.Name)
 
-rlocus(G2)
+H1 = -1* c2d(C, dt);
 
-H = -1* c2d(C, dt);
+load("OuterloopController.mat");
+Controller = ControlSystemDesignerSession.DesignerData.Designs(end);
+C = Controller.Data.C;
+fprintf("Choosing Design: %s\n", Controller.Name)
+
+H2 = -1* c2d(C, dt*2);
+
+% rlocus(G2)
 % H = tf([1], [1], dt);
     
 feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
