@@ -21,14 +21,14 @@ Controller = ControlSystemDesignerSession.DesignerData.Designs(end);
 C = Controller.Data.C;
 fprintf("Choosing Design: %s\n", Controller.Name)
 
-H2 = -1* c2d(C, dt*2);
+H2 = -1* c2d(C, dt*4);
 
 % rlocus(G2)
 % H = tf([1], [1], dt);
     
 feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
 
-controller = ZtransformController(H, [1 0 0 0]);
+controller = ZtransformController(H1, [1 0 0 0]);
 % controller.addFeedForwardFunc(feedForwardFunc);
 
 % CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);

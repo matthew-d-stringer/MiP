@@ -21,9 +21,23 @@ public:
         cIndex--;
     }
 
+    int len() {
+        return size;
+    }
+
+    void printVals() {
+        Serial.print("{");
+        for(int i = 0; i < size; i++) {
+            Serial.print(vector[calcIndex(i)]);
+            if(i != size - 1)
+                Serial.print(",");
+        }
+        Serial.println("}");
+    }
+
 private:
     int calcIndex(int i){
-        return (i + cIndex) % size;
+        return ((i + cIndex) % size + size) % size;
     }
 };
 

@@ -1,3 +1,4 @@
+#if 0
 #include "Motor.h"
 #include "MPU.h"
 #include "LPassFilter.h"
@@ -26,8 +27,11 @@ MPU mpu;
 CompFilter compFilterOfTheta(0.98);
 
 Derivative phiDot;
-ModernController controller;
-ZTransformController classicalController(new float[2]{0, 0.7440}, 2, new float[2]{1, -1}, 2);
+// ModernController controller;
+ZTransformController classicalController(
+  float[3]{2881.769393, -5512.656553, 2635.884492}, 3, 
+  float[3]{1, -1.7759, 0.7884}, 3
+);
 
 int pTime = 0;
 
@@ -48,9 +52,9 @@ void setup() {
   Serial.begin(115200);
   mpu.setup();
   mpu.calibrate();
-  Serial.println("Raw Gyro Acc");
-  while(mpu.angleFromAcc() > 10)
-    mpu.readMPUData();
+  // Serial.println("Raw Gyro Acc");
+  // while(mpu.angleFromAcc() > 10)
+  //   mpu.readMPUData();
   
   pTime = millis();
 
@@ -61,35 +65,89 @@ void loop() {
   mpu.readMPUData();
   compFilterOfTheta.filter(mpu.angleFromAcc(), mpu.angularRateFromGyro());
 
-  Serial.print(mpu.angleFromAcc());
-  Serial.print(',');
-  Serial.println(compFilterOfTheta.getVal());
+  // Serial.print(mpu.angleFromAcc());
+  // Serial.print(',');
+  // Serial.println(compFilterOfTheta.getVal());
 
-  // float theta = compFilterOfTheta.getVal() * PI/180;
+  float theta = compFilterOfTheta.getVal() * PI/180;
   // float thetaRate = mpu.angularRateFromGyro() * PI/180;
 
-  // float phi = (lMotor.getEncAngle() + rMotor.getEncAngle())/2;
-  // float phiRate = phiDot.differentiate(phi);
+  // float phi = (lMotor.getEncAngle() + rMotor.getEncAngle())/2 + theta;
+  // float phiRate = phiDot.differentiate(phi) + thetaRate;
 
   // float voltage = controller.control(theta, phi, thetaRate, phiRate);
-  // float voltage = classicalController.control(theta);
+  float voltage = classicalController.control(theta);
 
-  // if(abs(theta) > 30 * PI/180) 
-    float voltage = 0;
+  if(abs(theta) > 30 * PI/180) 
+    voltage = 0;
 
-  // int cTime = millis();
+  int cTime = millis();
   // Serial.print(cTime - pTime);
   // Serial.print(",");
-  // Serial.print(theta * 180/PI);
-  // Serial.print(",");
+  Serial.print(theta * 180/PI);
+  Serial.print(",");
   // Serial.print(phi * 180/PI);
   // Serial.print(",");
-  // Serial.println(voltage);
+  Serial.println(voltage);
 
   // mpu.printAccData();
 
   lMotor.writeToMotor(voltage);
   rMotor.writeToMotor(voltage);
 
-  // pTime = cTime;
+  pTime = cTime;
 }
+#elif 0 
+#include "CircVector.h"
+
+int counter = 0;
+CircVector test(3);
+
+void setup() {
+  Serial.begin(115200);
+
+  for(int something = 0; something < 20; something++) {
+    test.increment();
+    test[0] = counter;
+
+    Serial.print("{");
+    for(int i = 0; i < test.len(); i++) {
+        Serial.print(test[i]);
+        if(i != test.len() - 1)
+            Serial.print(",");
+    }
+    Serial.println("}");
+    counter++;
+  }
+}
+
+void loop() {
+}
+#else 
+#include "ZTransformController.h"
+
+// float numVals[] = {2881.769393, -5512.656553, 2635.884492};
+// float demVals[] = {1, -1.7759, 0.7884};
+
+float numVals[] = {3, -5, 3};
+float demVals[] = {1, -2, 1};
+
+ZTransformController classicalController(
+  numVals, 3, 
+  demVals, 3
+);
+
+int count = 0;
+
+void setup() {
+  Serial.begin(115200);
+}
+
+void loop() {
+  if(count < 10) {
+    Serial.println(classicalController.control(1));
+    count++;
+  }
+}
+
+#endif
