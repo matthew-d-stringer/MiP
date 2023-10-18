@@ -28,9 +28,13 @@ CompFilter compFilterOfTheta(0.98);
 
 Derivative phiDot;
 // ModernController controller;
+
+float numVals[] = {2881.769393, -5512.656553, 2635.884492};
+float demVals[] = {1, -1.7759, 0.7884};
+
 ZTransformController classicalController(
-  float[3]{2881.769393, -5512.656553, 2635.884492}, 3, 
-  float[3]{1, -1.7759, 0.7884}, 3
+  numVals, 3, 
+  demVals, 3
 );
 
 int pTime = 0;
@@ -129,8 +133,10 @@ void loop() {
 // float numVals[] = {2881.769393, -5512.656553, 2635.884492};
 // float demVals[] = {1, -1.7759, 0.7884};
 
-float numVals[] = {3, -5, 3};
-float demVals[] = {1, -2, 1};
+float numVals[] = {2881.769393, -5512.656553, 2635.884492};
+float demVals[] = {1, -1.7759, 0.7884};
+// float numVals[] = {3, -5, 3};
+// float demVals[] = {1, -2, 1};
 
 ZTransformController classicalController(
   numVals, 3, 
