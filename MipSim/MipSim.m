@@ -94,7 +94,7 @@ classdef MipSim < Sim
 
         function [t, x, u] = run(o, x0, controller, dt, Tf)
         % RUN Returns all following states from initial state x0 until final time
-        %   Tf using inputs calculated from controller.control(t,x) from 
+        %   Tf using inputs calculated from controller.timedControl(t,x) from 
         %   Controller abstract class
         %   
         %   o.RUN([0.1;0;0;0], SSController(K); 0.01, 10) Simulates system from x0 at t = 0
@@ -105,7 +105,7 @@ classdef MipSim < Sim
             x(:,1) = x0;
             controller.reset();
             for ii = 2:length(t)
-                u(ii) = controller.timedControl(t(ii), x(:, ii-1) + deg2rad([5;0;0;0]));
+                u(ii) = controller.timedControl(t(ii), x(:, ii-1));
                 x(:,ii) = o.update(x(:, ii-1), u(ii), dt);
                 if isnan(x(:,ii))
                     x = x(:,1:(ii-1));

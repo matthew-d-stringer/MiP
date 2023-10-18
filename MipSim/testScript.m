@@ -7,33 +7,36 @@ dt = 0.001; % Sample time of controller
 simDt = 0.0005; % Sample time of simulation
 
 G1 = sim.linearizedU2ThetaTF();
-G2 = sim.linearizedTheta2Phi();
+G2 = sim.linearizedTheta2Phi(); 
 
 load("DiscreteEquivalentDesign.mat");
 Controller = ControlSystemDesignerSession.DesignerData.Designs(end);
 C = Controller.Data.C;
 fprintf("Choosing Design: %s\n", Controller.Name)
 
-H1 = -1* c2d(C, dt);
+H1 = c2d(C, dt);
 
 load("OuterloopController.mat");
 Controller = ControlSystemDesignerSession.DesignerData.Designs(end);
 C = Controller.Data.C;
 fprintf("Choosing Design: %s\n", Controller.Name)
 
-H2 = -1* c2d(C, dt*4);
+H2 = -c2d(C, dt*4);
 
 % rlocus(G2)
 % H = tf([1], [1], dt);
     
 feedForwardFunc = @(t,x) (antiGravityFunc(sim,t,x));
 
-controller = ZtransformController(H1, [1 0 0 0]);
+innerLoop = ZtransformController(H1, [1 0 0 0]);
+outerLoop = ZtransformController(H2, [0 1 0 0]);
 % controller.addFeedForwardFunc(feedForwardFunc);
+
+controller = CascadeController(innerLoop, outerLoop);
 
 % CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
 
-% CompareDifferentThetaErrors(sim, 5:5:15, simDt, 5, controller);
+CompareDifferentThetaErrors(sim, 0:5:15, simDt, 5, controller);
 
 % frames = sim.animateWithComputedU(x0, controller, simDt, 5);
 % sim.saveAnimation("Animation.avi",frames);

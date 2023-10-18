@@ -8,6 +8,8 @@ classdef ZtransformController < Controller
         C; % Matrix for finding y
 
         feedForwardFunc = @(t,x) 0;
+
+        setpoint = 0;
     end
     methods
         function o = ZtransformController(tf, C)
@@ -36,7 +38,7 @@ classdef ZtransformController < Controller
         end
 
         function u = control(o,t,x)
-            y = o.C*x;
+            y = o.setpoint - o.C*x;
             % Shift input vector to add new output
             o.prevInput = circshift(o.prevInput,1);
             o.prevInput(1) = y;
@@ -50,6 +52,13 @@ classdef ZtransformController < Controller
             o.prevOutput(1) = u;
 
             u = u + o.feedForwardFunc(t,x);
+        end
+
+        function setSetpoint(o, setpoint)
+            o.setpoint = setpoint;
+        end
+        function setpoint = getSetpoint(o)
+            setpoint = o.setpoint;
         end
     end
 end

@@ -8,6 +8,8 @@ private:
     CircVector prevInputs;
     CircVector prevOutputs;
 
+    float setpoint = 0;
+
 public:
     ZTransformController(float *num, int numLen, float *dem, int demLen)
     :prevInputs(numLen), prevOutputs(demLen) 
@@ -23,11 +25,20 @@ public:
         prevInputs.reset();
         prevOutputs.reset();
     }
+
+    float setSetpoint(float setpoint) {
+        this->setpoint = setpoint;
+    }
+
+    float getSetpoint() {
+        return setpoint;
+    }
+
     float control(float input) {
         float output = 0;
 
         prevInputs.increment();
-        prevInputs[0] = input;
+        prevInputs[0] = input - setpoint;
 
         prevOutputs.increment();
 

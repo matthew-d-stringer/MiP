@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #include "Motor.h"
 #include "MPU.h"
 #include "LPassFilter.h"
@@ -32,12 +32,21 @@ Derivative phiDot;
 float numVals[] = {2881.769393, -5512.656553, 2635.884492};
 float demVals[] = {1, -1.7759, 0.7884};
 
+float numVals2[] = {1.488080471214443};
+float demVals2[] = {1, -1};
+
 ZTransformController classicalController(
   numVals, 3, 
   demVals, 3
 );
 
+ZTransformController outerLoop(
+  numVals2, 1, 
+  demVals2, 2
+);
+
 int pTime = 0;
+int counter = 0;
 
 static void lMotorPinInterrupt() {
   lMotor.encoderPinChange();
@@ -76,19 +85,27 @@ void loop() {
   float theta = compFilterOfTheta.getVal() * PI/180;
   // float thetaRate = mpu.angularRateFromGyro() * PI/180;
 
-  // float phi = (lMotor.getEncAngle() + rMotor.getEncAngle())/2 + theta;
+  float phi = (lMotor.getEncAngle() + rMotor.getEncAngle())/2 + theta;
   // float phiRate = phiDot.differentiate(phi) + thetaRate;
 
   // float voltage = controller.control(theta, phi, thetaRate, phiRate);
+
+  if(counter % 4 == 0)
+    classicalController.setSetpoint(outerLoop.control(phi));
+
   float voltage = classicalController.control(theta);
 
-  if(abs(theta) > 30 * PI/180) 
+  if(abs(theta) > 30 * PI/180) {
     voltage = 0;
+    outerLoop.reset();
+  }
 
   int cTime = millis();
   // Serial.print(cTime - pTime);
   // Serial.print(",");
   Serial.print(theta * 180/PI);
+  Serial.print(",");
+  Serial.print(classicalController.getSetpoint() * 180/PI);
   Serial.print(",");
   // Serial.print(phi * 180/PI);
   // Serial.print(",");
@@ -100,6 +117,7 @@ void loop() {
   rMotor.writeToMotor(voltage);
 
   pTime = cTime;
+  counter++;
 }
 #elif 0 
 #include "CircVector.h"
