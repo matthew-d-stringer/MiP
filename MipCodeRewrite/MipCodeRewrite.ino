@@ -3,6 +3,7 @@
 #include "LPassFilter.h"
 #include "Derivative.h"
 #include "ModernController.h"
+#include "ZTransformController.h"
 
 #define LMotorPinSign1 42
 #define LMotorPinSign2 44
@@ -26,6 +27,7 @@ CompFilter compFilterOfTheta(0.98);
 
 Derivative phiDot;
 ModernController controller;
+ZTransformController classicalController(new float[2]{0, 0.7440}, 2, new float[2]{1, -1}, 2);
 
 int pTime = 0;
 
@@ -51,6 +53,8 @@ void setup() {
     mpu.readMPUData();
   
   pTime = millis();
+
+  classicalController.reset();
 }
 
 void loop() {
@@ -61,30 +65,31 @@ void loop() {
   Serial.print(',');
   Serial.println(compFilterOfTheta.getVal());
 
-  float theta = compFilterOfTheta.getVal() * PI/180;
-  float thetaRate = mpu.angularRateFromGyro() * PI/180;
+  // float theta = compFilterOfTheta.getVal() * PI/180;
+  // float thetaRate = mpu.angularRateFromGyro() * PI/180;
 
-  float phi = (lMotor.getEncAngle() + rMotor.getEncAngle())/2;
-  float phiRate = phiDot.differentiate(phi);
+  // float phi = (lMotor.getEncAngle() + rMotor.getEncAngle())/2;
+  // float phiRate = phiDot.differentiate(phi);
 
-  float voltage = controller.control(theta, phi, thetaRate, phiRate);
+  // float voltage = controller.control(theta, phi, thetaRate, phiRate);
+  // float voltage = classicalController.control(theta);
 
-  if(abs(theta) > 30 * PI/180) 
-    voltage = 0;
+  // if(abs(theta) > 30 * PI/180) 
+    float voltage = 0;
 
-  int cTime = millis();
-  Serial.print(cTime - pTime);
-  Serial.print(",");
-  Serial.print(theta * 180/PI);
-  Serial.print(",");
-  Serial.print(phi * 180/PI);
-  Serial.print(",");
-  Serial.println(voltage);
+  // int cTime = millis();
+  // Serial.print(cTime - pTime);
+  // Serial.print(",");
+  // Serial.print(theta * 180/PI);
+  // Serial.print(",");
+  // Serial.print(phi * 180/PI);
+  // Serial.print(",");
+  // Serial.println(voltage);
 
   // mpu.printAccData();
 
   lMotor.writeToMotor(voltage);
   rMotor.writeToMotor(voltage);
 
-  pTime = cTime;
+  // pTime = cTime;
 }
