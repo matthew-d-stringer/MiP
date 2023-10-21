@@ -34,13 +34,14 @@ innerLoop = ZtransformController(H1, [1 0 0 0]);
 outerLoop = ZtransformController(H2, [0 1 0 0]);
 % controller.addFeedForwardFunc(feedForwardFunc);
 
-% controller = CascadeController(innerLoop, outerLoop);
+controller = CascadeController(innerLoop, outerLoop);
+controller = innerLoop;
 
 % CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
 
 % CompareDifferentThetaErrors(sim, 0:5:15, simDt, 5, controller);
 
-% frames = sim.animateWithComputedU(x0, controller, simDt, 5);
+frames = sim.animateWithComputedU(x0, controller, simDt, 5);
 % sim.saveAnimation("Animation.avi",frames);
 
 function voltage = antiGravityFunc(sim,t,x)

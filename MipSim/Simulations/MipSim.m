@@ -1,4 +1,4 @@
-classdef MipSim < Sim
+classdef MipSim < AnimatedSim
     properties 
         % Inertia of the wheel
         Iw = 3.815e-5; % kg*m^2
@@ -90,36 +90,6 @@ classdef MipSim < Sim
                 x(3:4)
                 acc
             ];
-        end
-
-        function [t, x, u] = run(o, x0, controller, dt, Tf)
-        % RUN Returns all following states from initial state x0 until final time
-        %   Tf using inputs calculated from controller.timedControl(t,x) from 
-        %   Controller abstract class
-        %   
-        %   o.RUN([0.1;0;0;0], SSController(K); 0.01, 10) Simulates system from x0 at t = 0
-        %   to t = 10 using the control law u=-Kx
-            arguments
-                o
-                x0
-                controller Controller
-                dt
-                Tf
-            end
-            t = 0:dt:Tf;
-            x = zeros(4,length(t));
-            u = zeros(1,length(t));
-            x(:,1) = x0;
-            controller.reset();
-            for ii = 2:length(t)
-                u(ii) = controller.timedControl(t(ii), x(:, ii-1));
-                x(:,ii) = o.update(x(:, ii-1), u(ii), dt);
-                if isnan(x(:,ii))
-                    x = x(:,1:(ii-1));
-                    disp('Failed because x became NaN')
-                    break;
-                end
-            end
         end
 
         function [A, B] = linearizedInverted(o)
@@ -222,57 +192,12 @@ classdef MipSim < Sim
             B = [0;0;B];
         end
 
-        function frames = animateWithComputedU(o, x0, controller, dt, Tf)
-        % ANIMATEWITHCOMPUTEDU Animates simulation starting at x0 from 0 to Tf
-        %   and returns frames to be saved into animation using MipSim.saveAnimation()
-            arguments
-                o MipSim
-                x0
-                controller Controller
-                dt
-                Tf
-            end
-        
-            [t x inputs] = o.run(x0, controller, dt, Tf);
 
-            o.updateObjs(x(1,1), x(2,1));
-
-            frames = [getframe(gcf)];
-            prevT = 0;
-            tic;
-            for ii=2:length(t)
-                if t(ii) - prevT < o.animationDt
-                    continue;
-                end
-                prevT = t(ii);
-
-                clf;
-                title("Time = "+t(ii)+" Theta = "+rad2deg(x(1,ii))+" Phi = "+rad2deg(x(2,ii))+" u = "+inputs(ii));
-                
-                o.updateObjs(x(1,ii), x(2,ii));
-                drawnow;
-                frames = [frames getframe(gcf)];
-                pause(o.animationDt-toc);
-                tic;
-            end
-
-        end
-
-        function saveAnimation(o, filename, frames)
-        % SAVEANIMATION Saves frames from animation into avi file.
-
-            video = VideoWriter('Animation.avi');
-            video.Quality = 95;
-            video.FrameRate = 1/o.animationDt;
-            open(video);
-            for frame=frames
-                writeVideo(video,frame);
-            end
-            close(video)
-        end
-
-        function [wheel, rod, wheelPos] = updateObjs(this, theta, phi)
+        function [wheel, rod, wheelPos] = updateObjs(this, x)
         % UPDATEOBJS Plots pendulum animation with given theta and phi
+            theta = x(1);
+            phi = x(2);
+            
             l = 5;
             y = -this.r*phi;
             z = l*cos(theta);
