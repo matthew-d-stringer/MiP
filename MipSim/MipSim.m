@@ -99,6 +99,13 @@ classdef MipSim < Sim
         %   
         %   o.RUN([0.1;0;0;0], SSController(K); 0.01, 10) Simulates system from x0 at t = 0
         %   to t = 10 using the control law u=-Kx
+            arguments
+                o
+                x0
+                controller Controller
+                dt
+                Tf
+            end
             t = 0:dt:Tf;
             x = zeros(4,length(t));
             u = zeros(1,length(t));
@@ -218,6 +225,13 @@ classdef MipSim < Sim
         function frames = animateWithComputedU(o, x0, controller, dt, Tf)
         % ANIMATEWITHCOMPUTEDU Animates simulation starting at x0 from 0 to Tf
         %   and returns frames to be saved into animation using MipSim.saveAnimation()
+            arguments
+                o MipSim
+                x0
+                controller Controller
+                dt
+                Tf
+            end
         
             [t x inputs] = o.run(x0, controller, dt, Tf);
 

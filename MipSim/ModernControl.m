@@ -21,7 +21,7 @@ K = lqr(sys, Q, R);
 
 controller = SSController(K, dt);
 K'
-
+    
 subplot(2, 1, 1);
 CompareDifferentThetaErrors(sim, 5:5:15, simDt, 5, controller);
 [t, x, u] = sim.run(x0, controller, simDt, 5);

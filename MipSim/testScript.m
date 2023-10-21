@@ -14,6 +14,7 @@ Controller = ControlSystemDesignerSession.DesignerData.Designs(end);
 C = Controller.Data.C;
 fprintf("Choosing Design: %s\n", Controller.Name)
 
+C1 = C;
 H1 = c2d(C, dt);
 
 load("OuterloopController.mat");
@@ -21,6 +22,7 @@ Controller = ControlSystemDesignerSession.DesignerData.Designs(end);
 C = Controller.Data.C;
 fprintf("Choosing Design: %s\n", Controller.Name)
 
+C2 = C;
 H2 = -c2d(C, dt*4);
 
 % rlocus(G2)
@@ -36,7 +38,7 @@ controller = CascadeController(innerLoop, outerLoop);
 
 % CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
 
-CompareDifferentThetaErrors(sim, 0:5:15, simDt, 5, controller);
+% CompareDifferentThetaErrors(sim, 0:5:15, simDt, 5, controller);
 
 % frames = sim.animateWithComputedU(x0, controller, simDt, 5);
 % sim.saveAnimation("Animation.avi",frames);

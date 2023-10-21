@@ -5,6 +5,10 @@ classdef CascadeController < Controller
     end
     methods
         function o = CascadeController(innerLoop, outerLoop) 
+            arguments
+                innerLoop ZtransformController
+                outerLoop ZtransformController
+            end
             o = o@Controller(0);
             o.innerLoop = innerLoop;
             o.outerLoop = outerLoop;
