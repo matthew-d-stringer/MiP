@@ -34,7 +34,7 @@ innerLoop = ZtransformController(H1, [1 0 0 0]);
 outerLoop = ZtransformController(H2, [0 1 0 0]);
 % controller.addFeedForwardFunc(feedForwardFunc);
 
-controller = CascadeController(innerLoop, outerLoop);
+% controller = CascadeController(innerLoop, outerLoop);
 
 % CompareFeedForward(sim, x0, dt, 5, controller, feedForwardFunc);
 
