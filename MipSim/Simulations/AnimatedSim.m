@@ -1,4 +1,8 @@
 classdef (Abstract) AnimatedSim < Sim
+    properties
+        axisVals = [-1 10 -1 10];
+        animationDt = 1/30;
+    end
     methods (Abstract)
         updateObjs(this, x)
     end
@@ -51,5 +55,13 @@ classdef (Abstract) AnimatedSim < Sim
             end
             close(video)
         end
+
+        function xyRange(obj, xVal, bottom)
+        % XYRANGE   Sets xy range and bottom y value for animation
+        %   obj.XYRANGE([-1 10], -1) sets min x value in range to -1 and 
+        %   max x value in range to 10. Also sets bottom of window to -1.
+            obj.axisVals = [xVal(1) xVal(2) bottom bottom+xVal(2)-xVal(1)];
+        end
+
     end
 end

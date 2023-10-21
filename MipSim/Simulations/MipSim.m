@@ -38,10 +38,6 @@ classdef MipSim < AnimatedSim
         K2;
         K3;
         K4;
-
-        axisVals;
-
-        animationDt = 1/30;
     end
     methods
         function o = MipSim() 
@@ -53,14 +49,6 @@ classdef MipSim < AnimatedSim
             o.K2 = o.Mb*o.r*o.l;
             o.K3 = o.Ib + o.Mb * o.l^2;
             o.K4 = o.Mb*o.g*o.l;
-            o.axisVals = [-1 10 -1 10];
-        end
-
-        function xyRange(obj, xVal, bottom)
-        % XYRANGE   Sets xy range and bottom y value for animation
-        %   obj.XYRANGE([-1 10], -1) sets min x value in range to -1 and 
-        %   max x value in range to 10. Also sets bottom of window to -1.
-            obj.axisVals = [xVal(1) xVal(2) bottom bottom+xVal(2)-xVal(1)];
         end
 
         % x = [theta, phi, theta', phi']'
