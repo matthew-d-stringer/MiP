@@ -7,7 +7,7 @@ classdef (Abstract) AnimatedSim < Sim
         updateObjs(this, x)
     end
     methods
-        function frames = animateWithComputedU(o, x0, controller, dt, Tf)
+        function [frames x inputs] = animateWithComputedU(o, x0, controller, dt, Tf)
         % ANIMATEWITHCOMPUTEDU Animates simulation starting at x0 from 0 to Tf
         %   and returns frames to be saved into animation using MipSim.saveAnimation()
             arguments

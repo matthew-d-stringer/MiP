@@ -180,6 +180,12 @@ classdef MipSim < AnimatedSim
             B = [0;0;B];
         end
 
+        function voltage = antiGravityFunc(sim,t,x)
+            Ct = cos(x(1));
+            St = sin(x(1));
+            torque = (1 + sim.K2/sim.K1 *Ct)^(-1) * (sim.K4 * St - sim.K2^2/sim.K1*Ct*St*x(3)^2);
+            voltage = torque/sim.KtR + sim.Kv * x(4);
+        end
 
         function [wheel, rod, wheelPos] = updateObjs(this, x)
         % UPDATEOBJS Plots pendulum animation with given theta and phi
